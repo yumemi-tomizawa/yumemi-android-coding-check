@@ -20,9 +20,9 @@ import org.json.JSONObject
 import java.util.*
 
 /**
- * TwoFragment で使う
+ * RepositoryDetailFragment で使う
  */
-class OneViewModel(
+class RepositoryListViewModel(
     val context: Context
 ) : ViewModel() {
 
