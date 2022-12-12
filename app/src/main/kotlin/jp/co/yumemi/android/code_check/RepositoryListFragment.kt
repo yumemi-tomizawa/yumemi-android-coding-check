@@ -10,9 +10,12 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.*
 import jp.co.yumemi.android.code_check.databinding.RepositoryListBinding
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class RepositoryListFragment : Fragment(R.layout.repository_list) {
 
@@ -36,9 +39,7 @@ class RepositoryListFragment : Fragment(R.layout.repository_list) {
             .setOnEditorActionListener { editText, action, _ ->
                 if (action == EditorInfo.IME_ACTION_SEARCH) {
                     editText.text.toString().let {
-                        _viewModel.searchResults(it).apply {
-                            _adapter.submitList(this)
-                        }
+                        _viewModel.searchResults(it)
                     }
                     return@setOnEditorActionListener true
                 }
@@ -50,6 +51,13 @@ class RepositoryListFragment : Fragment(R.layout.repository_list) {
             it.addItemDecoration(_dividerItemDecoration)
             it.adapter = _adapter
         }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            _viewModel.uiState.collect {
+                _adapter.submitList(it.repositoryList)
+            }
+        }
+
     }
 
     fun gotoRepositoryDetailFragment(item: item) {
