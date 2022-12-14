@@ -35,7 +35,7 @@ class RepositoryListViewModel(
         val client = HttpClient(Android)
 
         viewModelScope.launch {
-            val response: HttpResponse = client?.get("https://api.github.com/search/repositories") {
+            val response: HttpResponse = client.get("https://api.github.com/search/repositories") {
                 header("Accept", "application/vnd.github.v3+json")
                 parameter("q", inputText)
             }
