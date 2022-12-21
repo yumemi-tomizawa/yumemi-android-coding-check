@@ -13,8 +13,7 @@ import io.ktor.client.engine.android.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import jp.co.yumemi.android.code_check.TopActivity.Companion.lastSearchDate
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import org.json.JSONObject
@@ -23,15 +22,25 @@ import java.util.*
 /**
  * RepositoryDetailFragment で使う
  */
-class RepositoryListViewModel(
-    val context: Context
-) : ViewModel() {
+class RepositoryListViewModel : ViewModel() {
+    private val _searchTextFlow = MutableStateFlow("")
 
-    private val _uiState = MutableStateFlow(RepositoryList.InitialValue)
-    val uiState = _uiState.asStateFlow()
+    private val _repositoryList = MutableStateFlow<List<RepositoryInfo>>(emptyList())
+
+    val uiState = combine(_repositoryList, _searchTextFlow) { repositoryList, searchText ->
+        RepositoryListUiState(
+            repositoryList = repositoryList,
+            searchText = searchText,
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = RepositoryListUiState.InitialValue,
+    )
+
 
     // 検索結果
-    fun searchResults(inputText: String)  {
+    fun searchResults(inputText: String, context: Context) {
         val client = HttpClient(Android)
 
         viewModelScope.launch {
@@ -44,7 +53,7 @@ class RepositoryListViewModel(
 
             val jsonItems = jsonBody.optJSONArray("items")!!
 
-            val items = mutableListOf<item>()
+            val items = mutableListOf<RepositoryInfo>()
 
             /**
              * アイテムの個数分ループする
@@ -60,7 +69,7 @@ class RepositoryListViewModel(
                 val openIssuesCount = jsonItem.optLong("open_issues_count")
 
                 items.add(
-                    item(
+                    RepositoryInfo(
                         name = name,
                         ownerIconUrl = ownerIconUrl,
                         language = context.getString(R.string.written_language, language),
@@ -74,13 +83,17 @@ class RepositoryListViewModel(
 
             lastSearchDate = Date()
 
-            _uiState.value = RepositoryList(items)
+            _repositoryList.value = items
         }
+    }
+
+    fun onValueChange(value: String) {
+        _searchTextFlow.value = value
     }
 }
 
 @Parcelize
-data class item(
+data class RepositoryInfo(
     val name: String,
     val ownerIconUrl: String,
     val language: String,
@@ -90,12 +103,14 @@ data class item(
     val openIssuesCount: Long,
 ) : Parcelable
 
-data class RepositoryList(
-    val repositoryList: List<item>
+data class RepositoryListUiState(
+    val repositoryList: List<RepositoryInfo>,
+    val searchText: String,
 ) {
     companion object {
-        val InitialValue = RepositoryList(
-            repositoryList = emptyList()
+        val InitialValue = RepositoryListUiState(
+            repositoryList = emptyList(),
+            searchText = ""
         )
     }
 }

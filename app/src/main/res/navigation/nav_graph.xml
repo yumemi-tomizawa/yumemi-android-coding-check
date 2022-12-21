@@ -21,8 +21,8 @@
         android:label="@string/app_name"
         tools:layout="@layout/repository_detail">
         <argument
-            android:name="item"
-            app:argType="jp.co.yumemi.android.code_check.item" />
+            android:name="RepositoryInfo"
+            app:argType="jp.co.yumemi.android.code_check.RepositoryInfo" />
     </fragment>
 
 </navigation>
