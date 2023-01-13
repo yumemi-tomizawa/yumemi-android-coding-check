@@ -9,7 +9,7 @@
         android:id="@+id/repositoryListFragment"
         android:name="jp.co.yumemi.android.code_check.RepositoryListFragment"
         android:label="@string/app_name"
-        tools:layout="@layout/repository_list">
+        >
         <action
             android:id="@+id/action_repositoryListFragment_to_repositoryDetailFragment"
             app:destination="@id/repositoryDetailFragment" />
@@ -17,11 +17,11 @@
 
     <fragment
         android:id="@+id/repositoryDetailFragment"
-        android:name="jp.co.yumemi.android.code_check.RepositoryListDetailFragment"
+        android:name="jp.co.yumemi.android.code_check.RepositoryDetailFragment"
         android:label="@string/app_name"
-        tools:layout="@layout/repository_detail">
+        >
         <argument
-            android:name="RepositoryInfo"
+            android:name="repositoryInfo"
             app:argType="jp.co.yumemi.android.code_check.RepositoryInfo" />
     </fragment>
 

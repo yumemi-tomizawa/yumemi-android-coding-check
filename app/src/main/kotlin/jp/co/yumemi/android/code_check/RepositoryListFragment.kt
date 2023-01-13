@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import jp.co.yumemi.android.code_check.repositoryList.RepositoryListRoute
 
 class RepositoryListFragment : Fragment() {
@@ -25,7 +26,14 @@ class RepositoryListFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 RepositoryListRoute(
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    onClick = {
+                        val action =
+                            RepositoryListFragmentDirections.actionRepositoryListFragmentToRepositoryDetailFragment(
+                                it
+                            )
+                        findNavController().navigate(action)
+                    },
                 )
             }
         }
